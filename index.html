@@ -98,16 +98,17 @@
             const terminal = document.getElementById("terminal");
             terminal.innerHTML = "";
             const lines = input.split("\n");
+            let echoOff = false;
             lines.forEach(line => {
-                let output = "<span style='color:#0f0;'>$ </span>" + line;
-                if (line.startsWith("echo ")) {
-                    output += "<br>" + line.substring(5);
-                } else if (line.startsWith("dir") || line.startsWith("ls")) {
-                    output += "<br>file1.txt  file2.txt  folder1  folder2";
-                } else if (line.startsWith("cd ")) {
-                    output += "<br>Changed directory to " + line.substring(3);
-                } else {
-                    output += "<br><span style='color:red;'>Command not found</span>";
+                let output = "";
+                if (line.startsWith("@echo off")) {
+                    echoOff = true;
+                } else if (line.startsWith("echo ")) {
+                    output = line.substring(5);
+                } else if (line.startsWith("pause")) {
+                    output = "Press any button to continue...";
+                } else if (!echoOff) {
+                    output = "<span style='color:#0f0;'>$ </span>" + line;
                 }
                 terminal.innerHTML += output + "<br>";
             });
