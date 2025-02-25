@@ -85,7 +85,7 @@
             <textarea id="code" placeholder="Type your batch script here..."></textarea>
         </div>
         <div class="terminal" id="terminal">
-            <p>Welcome to Linux Terminal</p>
+            <p>C:\Users\admin&gt; Welcome to the terminal</p>
         </div>
     </div>
     <div class="buttons">
@@ -97,8 +97,8 @@
         function runCode() {
             const input = document.getElementById("code").value;
             const terminal = document.getElementById("terminal");
-            terminal.innerHTML = "";
-            const lines = input.split("\\n");
+            terminal.innerHTML = "<p>C:\\Users\\admin&gt; </p>";
+            const lines = input.split("\n");
             let echoOff = false;
             let labels = {};
             let pointer = 0;
@@ -116,18 +116,15 @@
                 let line = lines[pointer].trim();
                 let output = "";
 
+                // Handle batch commands
                 if (line.startsWith("@echo off")) {
                     echoOff = true;
-                } else if (line.startsWith("color ")) {
-                    output = ""; // Ignore color command
-                } else if (line.startsWith("chcp ")) {
-                    output = ""; // Ignore chcp command
                 } else if (line.startsWith(":")) {
                     output = ""; // Ignore labels
                 } else if (line.startsWith("echo ")) {
                     output = line.substring(5);
                 } else if (line.startsWith("pause")) {
-                    output = "Press any button to continue...";
+                    output = "Press Enter to continue...";
                 } else if (line.startsWith("goto ")) {
                     let label = ":" + line.split(" ")[1];
                     if (labels[label] !== undefined) {
@@ -139,8 +136,10 @@
                     }
                 } else if (line.startsWith("set /p ")) {
                     let varName = line.split("=")[0].split(" ")[2].trim();
-                    output = `Waiting for input: ${varName}`;
+                    output = `C:\\Users\\admin&gt; ${varName}: `;
+                    terminal.innerHTML += "<p>" + output + "</p>";
                     vars[varName] = prompt(output, "");
+                    return; // Wait for user input before continuing
                 } else if (line.startsWith("if ")) {
                     let parts = line.split(" ");
                     let conditionVar = parts[1].replace(/"/g, "");
@@ -154,11 +153,11 @@
                             return;
                         }
                     }
-                } else if (!echoOff) {
-                    output = "<span style='color:#0f0;'>$ </span>" + line;
+                } else {
+                    output = "<span style='color:#0f0;'>C:\\Users\\admin&gt; </span>" + line;
                 }
 
-                if (output) terminal.innerHTML += output + "<br>";
+                if (output) terminal.innerHTML += "<p>" + output + "</p>";
                 pointer++;
                 setTimeout(executeLine, 100);
             }
@@ -167,7 +166,7 @@
         }
 
         function clearTerminal() {
-            document.getElementById("terminal").innerHTML = "<p>Welcome to Linux Terminal</p>";
+            document.getElementById("terminal").innerHTML = "<p>C:\\Users\\admin&gt; Welcome to the terminal</p>";
         }
 
         function toggleTheme() {
@@ -175,11 +174,11 @@
             if (body.classList.contains("linux-theme")) {
                 body.classList.remove("linux-theme");
                 body.classList.add("windows-theme");
-                document.getElementById("terminal").innerHTML = "<p>Welcome to Windows Terminal</p>";
+                document.getElementById("terminal").innerHTML = "<p>C:\\Users\\admin&gt; Welcome to Windows Terminal</p>";
             } else {
                 body.classList.remove("windows-theme");
                 body.classList.add("linux-theme");
-                document.getElementById("terminal").innerHTML = "<p>Welcome to Linux Terminal</p>";
+                document.getElementById("terminal").innerHTML = "<p>C:\\Users\\admin&gt; Welcome to Linux Terminal</p>";
             }
         }
     </script>
