@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Themed Notepad & Terminal</title>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: monospace;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+        }
+        .notepad, .terminal {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .notepad textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            resize: none;
+        }
+        .terminal {
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 14px;
+        }
+        .buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .linux-theme {
+            background-color: #222;
+            color: #ddd;
+        }
+        .linux-theme .notepad {
+            background: #333;
+            border-right: 2px solid #000;
+        }
+        .linux-theme textarea {
+            background: none;
+            color: #ddd;
+        }
+        .linux-theme .terminal {
+            background: #000;
+            color: #0f0;
+        }
+        .windows-theme {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+        .windows-theme .notepad {
+            background: #fff;
+            border-right: 2px solid #ccc;
+        }
+        .windows-theme textarea {
+            background: none;
+            color: #000;
+        }
+        .windows-theme .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body class="linux-theme">
+    <div class="container">
+        <div class="notepad">
+            <textarea id="code" placeholder="Type your batch script here..."></textarea>
+        </div>
+        <div class="terminal" id="terminal">
+            <p>Welcome to Linux Terminal</p>
+        </div>
+    </div>
+    <div class="buttons">
+        <button onclick="runCode()">Run</button>
+        <button onclick="clearTerminal()">Clear</button>
+        <button onclick="toggleTheme()">Toggle Theme</button>
+    </div>
+    <script>
+        function runCode() {
+            const input = document.getElementById("code").value;
+            const terminal = document.getElementById("terminal");
+            terminal.innerHTML = "";
+            const lines = input.split("\n");
+            lines.forEach(line => {
+                let output = "<span style='color:#0f0;'>$ </span>" + line;
+                if (line.startsWith("echo ")) {
+                    output += "<br>" + line.substring(5);
+                } else if (line.startsWith("dir") || line.startsWith("ls")) {
+                    output += "<br>file1.txt  file2.txt  folder1  folder2";
+                } else if (line.startsWith("cd ")) {
+                    output += "<br>Changed directory to " + line.substring(3);
+                } else {
+                    output += "<br><span style='color:red;'>Command not found</span>";
+                }
+                terminal.innerHTML += output + "<br>";
+            });
+        }
+        function clearTerminal() {
+            document.getElementById("terminal").innerHTML = "<p>Welcome to Linux Terminal</p>";
+        }
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains("linux-theme")) {
+                body.classList.remove("linux-theme");
+                body.classList.add("windows-theme");
+                document.getElementById("terminal").innerHTML = "<p>Welcome to Windows Terminal</p>";
+            } else {
+                body.classList.remove("windows-theme");
+                body.classList.add("linux-theme");
+                document.getElementById("terminal").innerHTML = "<p>Welcome to Linux Terminal</p>";
+            }
+        }
+    </script>
+</body>
+</html>
