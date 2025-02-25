@@ -32,6 +32,7 @@
             overflow-y: auto;
             padding: 10px;
             font-size: 14px;
+            white-space: pre-wrap;
         }
         .buttons {
             position: absolute;
@@ -97,25 +98,78 @@
             const input = document.getElementById("code").value;
             const terminal = document.getElementById("terminal");
             terminal.innerHTML = "";
-            const lines = input.split("\n");
+            const lines = input.split("\\n");
             let echoOff = false;
-            lines.forEach(line => {
+            let labels = {};
+            let pointer = 0;
+            let vars = {};
+
+            // Preprocess labels
+            lines.forEach((line, index) => {
+                if (line.startsWith(":")) {
+                    labels[line.trim()] = index;
+                }
+            });
+
+            function executeLine() {
+                if (pointer >= lines.length) return;
+                let line = lines[pointer].trim();
                 let output = "";
+
                 if (line.startsWith("@echo off")) {
                     echoOff = true;
+                } else if (line.startsWith("color ")) {
+                    output = ""; // Ignore color command
+                } else if (line.startsWith("chcp ")) {
+                    output = ""; // Ignore chcp command
+                } else if (line.startsWith(":")) {
+                    output = ""; // Ignore labels
                 } else if (line.startsWith("echo ")) {
                     output = line.substring(5);
                 } else if (line.startsWith("pause")) {
                     output = "Press any button to continue...";
+                } else if (line.startsWith("goto ")) {
+                    let label = ":" + line.split(" ")[1];
+                    if (labels[label] !== undefined) {
+                        pointer = labels[label];
+                        executeLine();
+                        return;
+                    } else {
+                        output = "Label not found: " + label;
+                    }
+                } else if (line.startsWith("set /p ")) {
+                    let varName = line.split("=")[0].split(" ")[2].trim();
+                    output = `Waiting for input: ${varName}`;
+                    vars[varName] = prompt(output, "");
+                } else if (line.startsWith("if ")) {
+                    let parts = line.split(" ");
+                    let conditionVar = parts[1].replace(/"/g, "");
+                    let conditionValue = parts[3].replace(/"/g, "");
+                    let gotoLabel = parts[5];
+                    if (vars[conditionVar] === conditionValue) {
+                        let label = ":" + gotoLabel;
+                        if (labels[label] !== undefined) {
+                            pointer = labels[label];
+                            executeLine();
+                            return;
+                        }
+                    }
                 } else if (!echoOff) {
                     output = "<span style='color:#0f0;'>$ </span>" + line;
                 }
-                terminal.innerHTML += output + "<br>";
-            });
+
+                if (output) terminal.innerHTML += output + "<br>";
+                pointer++;
+                setTimeout(executeLine, 100);
+            }
+
+            executeLine();
         }
+
         function clearTerminal() {
             document.getElementById("terminal").innerHTML = "<p>Welcome to Linux Terminal</p>";
         }
+
         function toggleTheme() {
             const body = document.body;
             if (body.classList.contains("linux-theme")) {
